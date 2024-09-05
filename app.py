@@ -19,19 +19,15 @@ def add_user_to_g():
 
         else:
             g.user = None
-            
-def create_app(database_name, testing=False):
+def create_app(database_name, testing=False):            
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql:///{database_name}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_ECHO'] = True
     app.config['SECRET_KEY'] = "secret secrets"
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-    if testing:
-        app.config["WTF_CSRF_ENABLED"] = False
 
     debug = DebugToolbarExtension(app)
-
 
     def get_categories(items):
         """Return an Set of categories that the items belong to"""
@@ -414,7 +410,7 @@ def create_app(database_name, testing=False):
             flash("Please login", "error")
             return redirect('/login')
 
-        trip_pack = TripPack.query.filter((TripPack.trip_id == trip_id) & (TripPack.pack_id == pack_id)).first()
+        trip_pack = TripPack.query.filter(TripPack.trip_id == trip_id and TripPack.pack_id == pack_id).first()
         db.session.delete(trip_pack)
         db.session.commit()
 
@@ -460,7 +456,7 @@ def create_app(database_name, testing=False):
             cold_items = []
             
             
-        if weather_information["chance_of_rain"] <= 25:
+        if weather_information["chance_of_rain"] >= 25:
             rain_items = Item.query.filter(
                     and_(Item.rain_precautionary == True,
                         Item.essential == False,
@@ -660,7 +656,7 @@ def create_app(database_name, testing=False):
 
         return redirect('/packs')
 
-    
+
         
         
         
@@ -782,11 +778,8 @@ def create_app(database_name, testing=False):
         
         flash('Item deleted', 'success')
         return redirect('/items')
-    
-    return app
 
-    
-if __name__ == '__main__':
+if __name__ == ('__main__'):
     app = create_app('packlist')
     connect_db(app)
     app.run(debug=True)
